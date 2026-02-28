@@ -13,3 +13,9 @@ HackShield is an offensive security application that will be intentionally vulne
 Week 01 
 - Understanding project objectives
 - Understanding and identifying possible attack surfaces in a web application
+
+Week 02
+- Understanding how a web application works
+- Building a simple web application skeleton designed to be intentionally vulnerable
+
+Week 03
