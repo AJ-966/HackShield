@@ -10,10 +10,10 @@ HackShield is an offensive security application that will be intentionally vulne
 - Weak authentication logic
 
 ## Tech Stack
-##### Languages
+### Languages
 - Node.js - to implement the application's backend
 
-##### Frameworks
+### Frameworks
 - Express - backend web application framework for Node.js
 
 ## System Overview
