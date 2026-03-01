@@ -38,8 +38,30 @@ app.get('/login', (req, res) => {
 // The browser sends inputted form data to the server through a POST request
 app.post('/login', (req, res) => {
     const {username, password} = req.body;
-    res.send('Received: ${username} / ${password}');
-})
+    
+    // INSECURE: String interpolation makes this vulnerable to SQL injection
+  const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
+  console.log(`[DEBUG] Query: ${query}`); // INSECURE: exposes internals in logs
+
+  let message;
+  try {
+    const user = db.prepare(query).get();
+    if (user) {
+      // INSECURE: No session created — authentication doesn't persist
+      message = `Welcome, ${username}! (No session — insecure)`;
+    } else {
+      message = "Login failed.";
+    }
+  } catch (err) {
+    // INSECURE: Raw error sent to user — leaks database internals
+    message = `Database error: ${err.message}`;
+  }
+
+  res.send(`
+    <h2>${message}</h2>
+    <a href="/login">Try again</a>
+  `);
+});
 
 // App starts a server and listens on port 3000 for connections
 // It responds with HTML for requests to the root URL (/) 
