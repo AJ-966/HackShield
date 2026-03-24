@@ -60,6 +60,7 @@ app.post('/login', (req, res) => {
     const {username, password} = req.body;
     
     // INSECURE: String interpolation makes this vulnerable to SQL injection
+    // VULNERABLE — SQL Injection possible here (Week 3 Step 2 already implemented in Week 2)
   const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
   console.log(`[DEBUG] Query: ${query}`); // INSECURE: exposes internals in logs
 
@@ -123,6 +124,47 @@ app.get("/search/results", (req, res) => {
         : "<p>No results found.</p>"
       }
       <a href="/search">Search again</a> | <a href="/">Home</a>
+    </body>
+    </html>
+  `);
+});
+
+// Week 3 Step 2 - Profile page
+// OWASP A03 Injection - user input is directly queried from the users database
+// Potential SQL attack: Inputting /profile?id=1 or any exisiting id number in the URL bar returns all of that user's data without any validation
+// Therefore, any user data is accessible without proper validation
+app.get("/profile", (req, res) => {
+  // raw URL parameter is never sanitised and used as a query
+  const id = req.query.id; 
+
+  // VULNERABLE — SQL Injection possible here
+  const sql = `SELECT * FROM users WHERE id = ${id}`;
+  console.log(`[DEBUG] Profile query: ${sql}`);
+
+  let user = null;
+  let error = null;
+
+  try {
+    user = db.prepare(sql).get();
+  } catch (err) {
+    // INSECURE: Raw database error shown to user
+    error = `Database error: ${err.message}`;
+  }
+
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>User Profile</title></head>
+    <body>
+      <h2>User Profile</h2>
+      ${error ? `<p style="color:red">${error}</p>` : ""}
+      ${user
+        ? `<p>ID: ${user.id}</p>
+           <p>Username: ${user.username}</p>
+           <p>Password: ${user.password}</p>`  
+        : "<p>User not found.</p>"
+      }
+      <a href="/">Home</a>
     </body>
     </html>
   `);
