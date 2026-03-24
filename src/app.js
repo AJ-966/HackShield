@@ -16,10 +16,28 @@ db.exec(`
   )
 `);
 
+// Week 3 - Creating a products table for search requests
+db.exec(`
+  CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+  )
+`);
+
 // Seeding a test user with plain text password and no hashing
 const existing = db.prepare("SELECT * FROM users WHERE username = 'admin'").get();
 if (!existing) {
   db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run("admin", "password123");
+  db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run("alice", "alice123");
+  db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run("bob", "bob123");
+}
+
+// Seeding products into the products table
+const existingProduct = db.prepare("SELECT * FROM products WHERE name = 'Hammer'").get();
+if (!existingProduct) {
+  db.prepare("INSERT INTO products (name) VALUES (?)").run("Hammer");
+  db.prepare("INSERT INTO products (name) VALUES (?)").run("Screwdriver");
+  db.prepare("INSERT INTO products (name) VALUES (?)").run("Wrench");
 }
 
 // App (server) handles incoming GET requests to the root URL (/)
@@ -48,7 +66,7 @@ app.post('/login', (req, res) => {
     const user = db.prepare(query).get();
     if (user) {
       // INSECURE: No session created — authentication doesn't persist
-      message = `Welcome, ${username}! (No session — insecure)`;
+      message = `Welcome, ${username}!`;
     } else {
       message = "Login failed.";
     }
