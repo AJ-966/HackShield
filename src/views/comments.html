@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>Comment Box</title></head>
+<body>
+  <h2>Leave a Comment</h2>
+  <!-- VULNERABLE: Content displayed without HTML escaping -->
+  <form method="POST" action="/comments">
+    <textarea name="content" rows="4" cols="40" 
+      placeholder="Type your comment..."></textarea><br><br>
+    <button type="submit">Submit</button>
+  </form>
+  <a href="/">Home</a>
+</body>
+</html>

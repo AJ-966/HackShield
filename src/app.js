@@ -24,6 +24,14 @@ db.exec(`
   )
 `);
 
+// Week 3 - Creating comments table for comment box feature
+db.exec(`
+  CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content TEXT NOT NULL
+  )
+`);
+
 // Seeding a test user with plain text password and no hashing
 const existing = db.prepare("SELECT * FROM users WHERE username = 'admin'").get();
 if (!existing) {
@@ -169,6 +177,43 @@ app.get("/profile", (req, res) => {
     </html>
   `);
 });
+
+// Week 3 Step 3 - Comment Box
+// User input is stored and displayed without HTML escaping
+// Potential for XSS injection since scripts can be executed in <>
+// OWASP A03 - Injection 
+// Potential XSS attack: Submitting <script>alert('hacked')</script> executes in browser
+app.get("/comments", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "comments.html"));
+});
+
+app.post("/comments", (req, res) => {
+  const { content } = req.body;
+
+  // VULNERABLE: Raw user input stored directly — no sanitization
+  db.prepare("INSERT INTO comments (content) VALUES (?)").run(content);
+
+  // Fetch all comments
+  const comments = db.prepare("SELECT * FROM comments").all();
+
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>Comments</title></head>
+    <body>
+      <h2>Comments</h2>
+      ${comments.map(c => `
+        <div>
+          <!-- VULNERABLE: content rendered as raw HTML — enables XSS -->
+          <p>${c.content}</p>
+        </div>
+      `).join("")}
+      <a href="/comments">Add another</a> | <a href="/">Home</a>
+    </body>
+    </html>
+  `);
+});
+
 
 // App starts a server and listens on port 3000 for connections
 // It responds with HTML for requests to the root URL (/) 
