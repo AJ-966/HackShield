@@ -54,6 +54,8 @@ app.get('/login', (req, res) => {
 });
 
 // The browser sends inputted form data to the server through a POST request
+// Week 3 - OWASP A03 - Injection - SQL injection is possible through string interpolation
+// Example: The user name ' OR '1'='1'-- bypasses the authentication and would login the user with any password
 app.post('/login', (req, res) => {
     const {username, password} = req.body;
     
@@ -77,7 +79,52 @@ app.post('/login', (req, res) => {
 
   res.send(`
     <h2>${message}</h2>
-    <a href="/login">Try again</a>
+    <a href="/login">Try again</a> | <a href="/">Home</a>
+  `);
+});
+
+
+// Week 3 Step 1 - Search Page
+// OWASP A03 - Injection (User input is directly used in SQL query)
+// Potential SQL attack: Searching ' OR '1'='1'-- returns the entire product list
+app.get("/search", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "search.html"));
+});
+
+app.get("/search/results", (req, res) => {
+  // raw user input is never sanitized and is used as a query
+  const query = req.query.q; 
+
+  // VULNERABLE — SQL Injection possible here - 
+  // `` are string literals that allow the contents of ${} to embed variables directly into strings
+  // Therefore user input is put directly into the query string without any checks to sanitise it
+  const sql = `SELECT * FROM products WHERE name = '${query}'`;
+  console.log(`[DEBUG] Search query: ${sql}`);
+
+  let results = [];
+  let error = null;
+
+  try {
+    results = db.prepare(sql).all();
+  } catch (err) {
+    // INSECURE: Raw database error is shown to user
+    error = `Database error: ${err.message}`;
+  }
+
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>Search Results</title></head>
+    <body>
+      <h2>Search Results for: ${query}</h2>
+      ${error ? `<p style="color:red">${error}</p>` : ""}
+      ${results.length > 0
+        ? results.map(r => `<p>${r.id}: ${r.name}</p>`).join("")
+        : "<p>No results found.</p>"
+      }
+      <a href="/search">Search again</a> | <a href="/">Home</a>
+    </body>
+    </html>
   `);
 });
 
