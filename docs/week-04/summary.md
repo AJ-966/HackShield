@@ -1,0 +1,2 @@
+- Analysed how HackShield (so far until Week 3) can be exploited through SQL injection to bypass authentication and extract user data.
+- Created detailed reports for each attack. 
