@@ -37,4 +37,5 @@ Week 03
 - Mapped all vulnerable components to appropriate OWASP Top 10 vulnerabilities
 
 Week 04
-- 
+- Analysed how HackShield (so far until Week 3) can be exploited through SQL injection to bypass authentication and extract user data.
+- Created detailed reports for each attack. 
