@@ -8,6 +8,9 @@ HackShield is an offensive security application that will be intentionally vulne
 - Simple web application server
 - Database that stores credentials in plain text
 - Weak authentication logic
+- Search page that searches products without sanitisation
+- Comment box without HTML escaping
+- User profile search through URL
 
 ## Tech Stack
 ### Languages
@@ -28,3 +31,10 @@ Week 02
 - Building a simple web application skeleton designed to be intentionally vulnerable
 
 Week 03
+- Added product search and profile search through URL feautures
+- Both new search features are designed to be intentionally vulnerable, especially to injection
+- Added a comment box that dispalys user comments without HTML eclipising (meant for XSS scritpting later)
+- Mapped all vulnerable components to appropriate OWASP Top 10 vulnerabilities
+
+Week 04
+- 
